@@ -1,0 +1,54 @@
+import java.util.*;
+
+class Program {
+ public static  int airportConnections(
+            List<String> airports, List<List<String>>routes, String startingAirport)
+    {
+        Set<String> remaining=new HashSet<>(); //Space O(a)
+        remaining.addAll(airports);
+        Map<String,List<String>> graph=buildGraph(routes,airports);  //TimeSpace
+
+        removeReachableAirports(startingAirport,graph,remaining);
+        for (String current:airports)
+        {
+            if (remaining.contains(current))
+            {
+                removeReachableAirports(current, graph, remaining);
+                remaining.add(current);
+            }
+        }
+        return remaining.contains(startingAirport) ?remaining.size() -1 :remaining.size();
+    }
+    
+    private static  Map <String,List<String>> buildGraph(List <List<String>> routes, List<String> airports)
+    {
+        Map<String, List<String>> graph =new HashMap<>();
+        for (String airport :airports)
+        {
+            graph.put(airport, new ArrayList<>());
+        }
+        
+        for (List<String> route :routes)
+        {
+            String from =route.get(0);
+            String to =route.get(1);
+            graph.get(from).add(to);
+            
+        }
+        return graph;
+    }
+    
+    
+   private static void removeReachableAirports(String current, Map<String,List<String>> graph, Set<String> remaining)
+   {
+       if(!remaining.contains(current))
+       {
+           return;
+       }
+       remaining.remove(current);
+       for (String next :graph.get(current)){
+           removeReachableAirports(next, graph,remaining);
+       }
+   }    
+   
+}
