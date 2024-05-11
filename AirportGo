@@ -1,0 +1,68 @@
+package airportGo
+
+type Graph map[string][]string
+
+func AirportConnections(airports []string, routes [][]string, startingAirport string) int {
+	graph := buidGraph(airports, routes)
+
+	nodeStack := getNodesWithDecreasingPostTimes(graph)
+
+	visited := make(map[string]bool)
+
+	exploreReachablity(startingAirport, graph, visited)
+	numLinks := 0
+	for len(nodeStack) > 0 {
+		n := len(nodeStack)
+		node := nodeStack[n-1]
+		nodeStack = nodeStack[:n-1]
+		if visited[node] {
+			continue
+		}
+		exploreReachablity(node, graph, visited)
+		numLinks++
+	}
+	return numLinks
+
+}
+
+func buidGraph(airports []string, routes [][]string) Graph {
+	graph := make(map[string][]string)
+	for _, node := range airports {
+		graph[node] = make([]string, 0)
+	}
+	for _, route := range routes {
+		u, v := route[0], route[1]
+		graph[u] = append(graph[u], v)
+	}
+	return graph
+}
+
+func getNodesWithDecreasingPostTimes(graph Graph) []string {
+	nodeStack := make([]string, 0)
+	visited := make(map[string]bool)
+	for node := range graph {
+		explore(node, graph, visited, &nodeStack)
+	}
+	return nodeStack
+}
+
+func explore(node string, graph Graph, visited map[string]bool, nodeStack *[]string) {
+	if visited[node] {
+		return
+	}
+	visited[node] = true
+	for _, dest := range graph[node] {
+		explore(dest, graph, visited, nodeStack)
+	}
+	*nodeStack = append(*nodeStack, node)
+}
+
+func exploreReachablity(node string, graph Graph, visited map[string]bool) {
+	if visited[node] {
+		return
+	}
+	visited[node] = true
+	for _, dest := range graph[node] {
+		exploreReachablity(dest, graph, visited)
+	}
+}
